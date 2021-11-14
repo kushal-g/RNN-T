@@ -1,0 +1,8 @@
+speech_config:
+  sample_rate: 22050
+  normalize: True
+  preemphasis: 0.97
+  feature_bins: 80 #as per the paper
+  center: True
+  frame_ms: 25
+  stride_ms: 10

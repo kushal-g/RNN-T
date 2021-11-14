@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "rnnt"
+version = "0.1.0"
+description = ""
+authors = ["Kushal Garg <kushalgarg2000@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.9"
+PyYAML = "^6.0"
+tensorflow = "^2.7.0"
+librosa = "^0.8.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
