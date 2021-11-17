@@ -6,3 +6,5 @@ speech_config:
   center: True
   frame_ms: 25
   stride_ms: 10
+
+  input_shape: 2000
