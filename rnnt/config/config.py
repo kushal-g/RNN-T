@@ -7,3 +7,4 @@ with open(f'{CUR_DIR}/config.yaml') as f:
     config = yaml.safe_load(f)
 
 speech_config = config["speech_config"]
+model_config = config["model_config"]
