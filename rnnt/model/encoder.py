@@ -23,6 +23,6 @@ def encoder():
     rnn_cell = lambda: tf.compat.v1.nn.rnn_cell.LSTMCell(lstm_hidden_units, num_proj=lstm_projection, dtype=tf.float32)
 
     for i in range(num_layers):
-        model.add(RNN(rnn_cell(),return_sequences=True, name=f"LSTM_{i+1}"))
+        model.add(RNN(rnn_cell(),return_sequences=True, name=f"LSTM_ENC_{i+1}"))
 
     return model
