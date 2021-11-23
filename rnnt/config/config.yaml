@@ -2,16 +2,14 @@ speech_config:
   sample_rate: 22050
   normalize: True
   preemphasis: 0.97
-  feature_bins: 80 ##https://arxiv.org/pdf/1909.06678.pdf
+  feature_bins: 80 #https://arxiv.org/pdf/1909.06678.pdf
   center: True
-  frame_ms: 10
-  stride_ms: 5
-
-  input_shape: 2000
+  frame_ms: 10 #https://arxiv.org/pdf/1909.06678.pdf
+  stride_ms: 10 #random (to not overlap frames)
 
 model_config:
-  batch_size: 32
-  vocab_size: 28
+  batch_size: 32  #random
+  vocab_size: 28  #26 + space + special
   
   prediction_network:
     embedding_size: 450 #random
@@ -20,3 +18,6 @@ model_config:
     lstm_projection: 640 #https://arxiv.org/pdf/1909.06678.pdf
 
   encoder:
+    num_layers: 2 #https://arxiv.org/pdf/1909.06678.pdf
+    lstm_hidden_units: 2048 #https://arxiv.org/pdf/1909.06678.pdf
+    lstm_projection: 640 #https://arxiv.org/pdf/1909.06678.pdf
