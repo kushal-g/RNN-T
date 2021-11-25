@@ -1,9 +1,9 @@
 from json import encoder
+
+from tensorflow import keras
 from preprocess import logmelspectogram
 from preprocess.slice import create_slices
 from config.config import speech_config
-from model.prediction_network import prediction_network
-from model.encoder import encoder
 import numpy as np
 
 from model.rnnt import rnnt
@@ -20,3 +20,4 @@ model  = rnnt()
 model.compile(optimizer="adam",loss="mse")
 
 print(model.summary())
+keras.utils.plot_model(model, "my_first_model.png")

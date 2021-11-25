@@ -11,13 +11,14 @@ model_config:
   batch_size: 32  #random
   vocab_size: 28  #26 + space + special
   frames_at_a_time: 3
-  prediction_network:
+  
+  encoder:
     embedding_size: 450 #random
     num_layers: 8 #https://arxiv.org/pdf/1909.06678.pdf
     lstm_hidden_units: 2048 #https://arxiv.org/pdf/1909.06678.pdf
     lstm_projection: 640 #https://arxiv.org/pdf/1909.06678.pdf
 
-  encoder:
+  decoder:
     num_layers: 2 #https://arxiv.org/pdf/1909.06678.pdf
     lstm_hidden_units: 2048 #https://arxiv.org/pdf/1909.06678.pdf
     lstm_projection: 640 #https://arxiv.org/pdf/1909.06678.pdf
