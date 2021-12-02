@@ -8,8 +8,10 @@ speech_config:
   stride_ms: 10 #random (to not overlap frames)
 
 model_config:
-  batch_size: 32  #random
-  vocab_size: 28  #26 + space + special
+  batch_size: 32  #random (B)
+  timesteps: 3 #testing (T)
+  label_length: 5 #testing (U)
+  vocab_size: 28  #26 + space + special (V)
   frames_at_a_time: 3
   
   encoder:
