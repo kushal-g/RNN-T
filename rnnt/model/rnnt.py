@@ -7,6 +7,7 @@ from config.config import model_config, speech_config
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Embedding, RNN, LayerNormalization
 from tensorflow.keras import Input
+import numpy as np
 
 enc_config = model_config["encoder"]
 dec_config = model_config["decoder"]
@@ -20,7 +21,7 @@ class RNNTransducer(keras.Model):
         self.V = lambda : V
 
         self.enc = self.encoder()
-        self.dec = self.decoder()
+        self.dec = Decoder()
 
         self.joint = Dense(self.V(), activation="tanh")     
     
@@ -29,10 +30,9 @@ class RNNTransducer(keras.Model):
         self.enc.summary()
         self.dec.summary()
 
-    def call(self,x):
+    def call(self,x,T):
         y_batch = []
         B = self.B()
-        T=[10]*B
         encoder_out = self.enc(x)
         U = self.U()
         NULL_INDEX=0
@@ -45,17 +45,21 @@ class RNNTransducer(keras.Model):
             decoder_state = None
 
             while t < T[b] and u < U:
-                g_u = self.dec([[y[-1]]])  #TODO: update states ???
+                g_u = self.dec(np.array([[[float(y[-1])]]]))  #TODO: update states ???
                 f_t = encoder_out[b,t]
                 joint_inp = f_t + g_u
 
                 h_t_u = self.joint(joint_inp)
-                argmax = h_t_u.max(-1)[1].item()
+
+                argmax = tf.math.argmax(h_t_u,axis=2).numpy()[0][0]
+                #argmax = h_t_u.max(-1)[1].item()
+                
                 if argmax == NULL_INDEX:
                     t += 1
                 else: # argmax == a label
                     u += 1
                     y.append(argmax)
+            #print(y)
             y_batch.append(y[1:]) # remove start symbol
 
         return y_batch
@@ -76,22 +80,22 @@ class RNNTransducer(keras.Model):
 
         return model
     
+       
 
-    def decoder(self):
-    
+class Decoder(keras.Model):
+    def __init__(self):
+        super(Decoder,self).__init__()
         num_layers = dec_config["num_layers"]
         lstm_hidden_units = dec_config["lstm_hidden_units"]
         lstm_projection = dec_config["lstm_projection"]
-    
         
-        inp = Input(shape=[1,1], batch_size=1,dtype=tf.float32)
-    
         rnn_cell = lambda: tf.compat.v1.nn.rnn_cell.LSTMCell(lstm_hidden_units, num_proj=lstm_projection, dtype=tf.float32)
-    
-        output = inp
-    
-        for i in range(num_layers):
-            output = RNN(rnn_cell(),return_sequences=True, name=f"LSTM_DEC_{i+1}")(output)
-    
-        return Model(inputs=inp,outputs=output,name="decoder")
 
+        self.lstms = [RNN(rnn_cell(),return_sequences=True, name=f"LSTM_DEC_{i+1}") for i in range(num_layers)]
+
+
+    def call(self, x):
+        for lstm in self.lstms:
+            x = lstm(x)
+        
+        return x

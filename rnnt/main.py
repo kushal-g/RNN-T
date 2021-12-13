@@ -23,14 +23,17 @@ from model.rnnt import RNNTransducer
 from config.config import model_config, speech_config
 
 model = RNNTransducer(
-  B=model_config["batch_size"],
+  B=1,
   T=model_config["timesteps"],
   U=model_config["label_length"],
   V=model_config["vocab_size"],
 )
 model.compile(optimizer="adam",loss="mse")
-print(model.build(input_shape=(None,3,80)))
+print(model(np.random.rand(10,3,80),[10]))
+# print(model.build(input_shape=(None,3,80)))
 print(model._summary())
+
+
 
 # keras.utils.plot_model(model, "my_first_model.png")
 
