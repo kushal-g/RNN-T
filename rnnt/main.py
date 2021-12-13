@@ -8,13 +8,13 @@ import numpy as np
 
 from model.rnnt import RNNTransducer
 
-mel_spec = logmelspectogram.get("/home/kushal/Desktop/RNN-T/music.mp3")
+# mel_spec = logmelspectogram.get("music.mp3")
 
-#slices = create_slices(mel_spec,speech_config["input_shape"])
+# #slices = create_slices(mel_spec,speech_config["input_shape"])
 
-dataset = np.array(object=object)
-np.append(dataset,mel_spec)
-print(np.array([mel_spec]).shape)
+# dataset = np.array(object=object)
+# np.append(dataset,mel_spec)
+# print(np.array([mel_spec]).shape)
 
 # model  = rnnt()
 # model.compile(optimizer="adam",loss="mse")

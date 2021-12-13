@@ -22,13 +22,6 @@ class RNNTransducer(keras.Model):
         self.enc = self.encoder()
         self.dec = self.decoder()
 
-        print("TYPEEE",type(self.dec.input_shape),self.dec.input_shape)
-
-        prev_pred_init = tf.zeros_initializer()
-        self.prev_prediction = tf.Variable(
-            initial_value=prev_pred_init(shape=self.dec.input_shape, dtype="float32"), trainable=False
-        )
-
         self.joint = Dense(self.V(), activation="tanh")     
     
     def _summary(self):
@@ -36,20 +29,36 @@ class RNNTransducer(keras.Model):
         self.enc.summary()
         self.dec.summary()
 
-    def call(self,inputs):
-        encoded_inp = self.enc(inputs)
-        decoded_prev = self.dec(self.prev_prediction)
+    def call(self,x):
+        y_batch = []
+        B = self.B()
+        T=[10]*B
+        encoder_out = self.enc(x)
+        U = self.U()
+        NULL_INDEX=0
+        start_symbol = NULL_INDEX
 
-        joint_inp = (
-            tf.expand_dims(encoded_inp, axis=2) +                 # [B, T, V] => [B, T, 1, V]
-            tf.expand_dims(decoded_prev, axis=1)
-        )
-        print("JOINT INPut SHAPE",joint_inp.shape)
-        output = self.joint(joint_inp)
-        print("OUPUTSHAPE",output.shape)
-        self.prev_prediction = output
+        for b in range(B):
+            t = 0
+            u = 0
+            y = [start_symbol]; 
+            decoder_state = None
 
-        return output
+            while t < T[b] and u < U:
+                g_u = self.dec([[y[-1]]])  #TODO: update states ???
+                f_t = encoder_out[b,t]
+                joint_inp = f_t + g_u
+
+                h_t_u = self.joint(joint_inp)
+                argmax = h_t_u.max(-1)[1].item()
+                if argmax == NULL_INDEX:
+                    t += 1
+                else: # argmax == a label
+                    u += 1
+                    y.append(argmax)
+            y_batch.append(y[1:]) # remove start symbol
+
+        return y_batch
 
     def encoder(self):
         num_layers = enc_config["num_layers"]
@@ -75,16 +84,13 @@ class RNNTransducer(keras.Model):
         lstm_projection = dec_config["lstm_projection"]
     
         
-        inp = Input(shape=[self.U(),self.V()], batch_size=self.B(), dtype=tf.float32)
+        inp = Input(shape=[1,1], batch_size=1,dtype=tf.float32)
+    
         rnn_cell = lambda: tf.compat.v1.nn.rnn_cell.LSTMCell(lstm_hidden_units, num_proj=lstm_projection, dtype=tf.float32)
     
         output = inp
-        output = RNN(
-            tf.compat.v1.nn.rnn_cell.LSTMCell(lstm_hidden_units, num_proj=lstm_projection, dtype=tf.float32),
-            return_sequences=True, 
-            name=f"LSTM_DEC_1")(output)
     
-        for i in range(1,num_layers):
+        for i in range(num_layers):
             output = RNN(rnn_cell(),return_sequences=True, name=f"LSTM_DEC_{i+1}")(output)
     
         return Model(inputs=inp,outputs=output,name="decoder")
