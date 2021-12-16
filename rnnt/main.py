@@ -23,13 +23,17 @@ from model.rnnt import RNNTransducer
 from config.config import model_config, speech_config
 
 model = RNNTransducer(
-  B=1,
+  B=model_config["batch_size"],
   T=model_config["timesteps"],
   U=model_config["label_length"],
   V=model_config["vocab_size"],
 )
 model.compile(optimizer="adam",loss="mse")
-print(model(np.random.rand(10,3,80),[10]))
+print(
+  model(
+    np.random.rand(model_config["batch_size"],model_config["timesteps"],80),
+  )
+)
 # print(model.build(input_shape=(None,3,80)))
 print(model._summary())
 

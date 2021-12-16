@@ -30,9 +30,10 @@ class RNNTransducer(keras.Model):
         self.enc.summary()
         self.dec.summary()
 
-    def call(self,x,T):
+    def call(self,x):
         y_batch = []
         B = self.B()
+        print("ENCODER INPUT SHAPE",x.shape)
         encoder_out = self.enc(x)
         U = self.U()
         NULL_INDEX=0
@@ -43,8 +44,8 @@ class RNNTransducer(keras.Model):
             u = 0
             y = [start_symbol]; 
             decoder_state = None
-
-            while t < T[b] and u < U:
+            record_timesteps = x[b].shape[0]
+            while t < record_timesteps and u < U:
                 g_u = self.dec(np.array([[[float(y[-1])]]]))  #TODO: update states ???
                 f_t = encoder_out[b,t]
                 joint_inp = f_t + g_u
@@ -58,6 +59,7 @@ class RNNTransducer(keras.Model):
                     t += 1
                 else: # argmax == a label
                     u += 1
+                    t += 1   #IMPORTANT NOTE: DIFFERENT FROM NOTEBOOK CODE
                     y.append(argmax)
             #print(y)
             y_batch.append(y[1:]) # remove start symbol
@@ -72,7 +74,7 @@ class RNNTransducer(keras.Model):
 
         model = Sequential()
         model._init_set_name("encoder")
-        model.add(Input(shape=[self.T(),feature_bins], batch_size=self.B(), dtype=tf.float32))
+        model.add(Input(shape=[None,feature_bins], batch_size=self.B(), dtype=tf.float32))
         rnn_cell = lambda: tf.compat.v1.nn.rnn_cell.LSTMCell(lstm_hidden_units, num_proj=lstm_projection, dtype=tf.float32)
 
         for i in range(num_layers):
