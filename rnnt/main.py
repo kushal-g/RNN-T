@@ -1,4 +1,5 @@
 from json import encoder
+from numpy.random import randint
 import tensorflow as tf
 from tensorflow import keras
 from preprocess import logmelspectogram
@@ -29,17 +30,24 @@ model = RNNTransducer(
   V=model_config["vocab_size"],
 )
 model.compile(optimizer="adam",loss="mse")
+
+#Prediction
 print(
   model(
     np.random.rand(model_config["batch_size"],model_config["timesteps"],80),
   )
 )
-# print(model.build(input_shape=(None,3,80)))
-print(model._summary())
 
+optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
 
+model.compile(optimizer, loss=tf.keras.losses.MeanSquaredError())
+x_train = np.random.rand(32,model_config["timesteps"],80)
+y_train = np.array([randint(0,high=27,size=3) for _ in range(32)])
 
-# keras.utils.plot_model(model, "my_first_model.png")
+print(x_train.shape,y_train.shape)
+model.fit(x_train, y_train, epochs=2, batch_size=32)
+
+#keras.utils.plot_model(model, "rnnt.png")
 
 # converter = tf.lite.TFLiteConverter.from_keras_model(model)
 # tflite_model = converter.convert()
